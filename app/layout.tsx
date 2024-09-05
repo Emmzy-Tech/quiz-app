@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Raleway } from "next/font/google";
-import { ClerkProvider } from "@clerk/nextjs";
+import { ClerkProvider, SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import "./globals.css";
 import LayoutProvider from "@/providers/LayoutProvider";
 
@@ -25,6 +25,13 @@ export default function RootLayout({
         <body
           className={`${raleway.className} min-h-screen`}
         >
+    <SignedOut>
+            <SignInButton />
+          </SignedOut>
+          <SignedIn>
+            <UserButton />
+          </SignedIn>
+          
           <LayoutProvider>{children}</LayoutProvider>
         </body>
       </html>

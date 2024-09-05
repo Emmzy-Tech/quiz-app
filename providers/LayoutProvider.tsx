@@ -42,6 +42,26 @@ function LayoutProvider({
       return;
     }
   };
+  // const getCurrentUser = async () => {
+  //   try {
+  //     const response: any = await fetchUsers();
+  
+  //     // Check if response is null or undefined
+  //     if (!response || !response.data) {
+  //       throw new Error("Failed to fetch user data");
+  //     }
+  
+  //     // Access the user and quiz results
+  //     const { user, quizResults } = response.data;
+  
+  //     // Do something with the user and quizResults
+  //     console.log("User: ", user);
+  //     console.log("Quiz Results: ", quizResults);
+  
+  //   } catch (error) {
+  //     console.error("Error fetching user:", error);
+  //   }
+  // };
 
   useEffect(() => {
     if (!isPublicRoute) getCurrentUser();

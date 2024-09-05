@@ -15,8 +15,7 @@ const Quiz = ({ questions, userId }: QuizProps) => {
   const [activeQuestion, setActiveQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState("");
   const [checked, setChecked] = useState(false);
-  const [selectedAnswerIndex, setSelectedAnswerIndex] =
-    useState<number | null>(null);
+  const [selectedAnswerIndex, setSelectedAnswerIndex] = useState<number | null>(null);
   const [showResults, setShowResults] = useState(false);
   const [results, setResults] = useState({
     score: 0,
@@ -26,8 +25,9 @@ const Quiz = ({ questions, userId }: QuizProps) => {
   const [timeRemaining, setTimeRemaining] = useState(25);
   const [timerRunning, setTimerRunning] = useState(false);
 
-  const { question, answers, correctAnswer } =
-    questions[activeQuestion];
+  // Ensure the question exists before destructuring
+  const currentQuestion = questions[activeQuestion];
+  const { question, answers, correctAnswer } = currentQuestion || {};
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -61,16 +61,12 @@ const Quiz = ({ questions, userId }: QuizProps) => {
 
   useEffect(() => {
     startTimer();
-
     return () => {
       stopTimer();
     };
   }, []);
 
-  const onAnswerSelected = (
-    answer: string,
-    idx: number
-  ) => {
+  const onAnswerSelected = (answer: string, idx: number) => {
     setChecked(true);
     setSelectedAnswerIndex(idx);
     if (answer === correctAnswer) {
@@ -113,29 +109,26 @@ const Quiz = ({ questions, userId }: QuizProps) => {
       })
         .then((response) => {
           if (!response.ok) {
-            throw new Error(
-              "Network response was not working fam"
-            );
+            throw new Error("Network response was not working fam");
           }
           return response.json();
         })
         .then((data) => {
-          console.log(
-            "Quiz results saved successfully:",
-            data
-          );
+          console.log("Quiz results saved successfully:", data);
         })
         .catch((error) => {
-          console.error(
-            "Error saving quiz results:",
-            error
-          );
+          console.error("Error saving quiz results:", error);
         });
     }
     setChecked(false);
     resetTimer();
     startTimer();
   };
+
+  if (!currentQuestion) {
+    return <div>No questions available</div>;
+  }
+
   return (
     <div className="min-h-[500px]">
       <div className="max-w-[1500px] mx-auto w-[90%] flex justify-center py-10 flex-col">
@@ -155,71 +148,35 @@ const Quiz = ({ questions, userId }: QuizProps) => {
             </div>
 
             <div>
-              <h3 className="mb-5 text-2xl font-bold">
-                {question}
-              </h3>
+              <h3 className="mb-5 text-2xl font-bold">{question}</h3>
               <ul>
-                {answers.map(
-                  (answer: string, idx: number) => (
-                    <li
-                      key={idx}
-                      onClick={() =>
-                        onAnswerSelected(answer, idx)
-                      }
-                      className={`cursor-pointer mb-5 py-3 rounded-md hover:bg-primary hover:text-white px-3
-                      ${
-                        selectedAnswerIndex === idx &&
-                        "bg-primary text-white"
-                      }
-                      `}
-                    >
-                      <span>{answer}</span>
-                    </li>
-                  )
-                )}
+                {answers?.map((answer: string, idx: number) => (
+                  <li
+                    key={idx}
+                    onClick={() => onAnswerSelected(answer, idx)}
+                    className={`cursor-pointer mb-5 py-3 rounded-md hover:bg-primary hover:text-white px-3
+                      ${selectedAnswerIndex === idx && "bg-primary text-white"}`}
+                  >
+                    <span>{answer}</span>
+                  </li>
+                ))}
               </ul>
-              <button
-                onClick={nextQuestion}
-                disabled={!checked}
-                className="font-bold"
-              >
-                {activeQuestion === questions.length - 1
-                  ? "Finish"
-                  : "Next Question →"}
+              <button onClick={nextQuestion} disabled={!checked} className="font-bold">
+                {activeQuestion === questions.length - 1 ? "Finish" : "Next Question →"}
               </button>
             </div>
           </>
         ) : (
           <div className="text-center">
-            <h3 className="text-2xl uppercase mb-10">
-              Results 📈
-            </h3>
+            <h3 className="text-2xl uppercase mb-10">Results 📈</h3>
             <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-10">
-              <StatCard
-                title="Percentage"
-                value={`${(results.score / 50) * 100}%`}
-              />
-              <StatCard
-                title="Total Questions"
-                value={questions.length}
-              />
-              <StatCard
-                title=" Total Score"
-                value={results.score}
-              />
-              <StatCard
-                title="Correct Answers"
-                value={results.correctAnswers}
-              />
-              <StatCard
-                title="Wrong Answers"
-                value={results.wrongAnswers}
-              />
+              <StatCard title="Percentage" value={`${(results.score / 50) * 100}%`} />
+              <StatCard title="Total Questions" value={questions.length} />
+              <StatCard title=" Total Score" value={results.score} />
+              <StatCard title="Correct Answers" value={results.correctAnswers} />
+              <StatCard title="Wrong Answers" value={results.wrongAnswers} />
             </div>
-            <button
-              onClick={() => window.location.reload()}
-              className="mt-10 font-bold uppercase"
-            >
+            <button onClick={() => window.location.reload()} className="mt-10 font-bold uppercase">
               Restart Quiz
             </button>
           </div>
